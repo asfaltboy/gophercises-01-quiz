@@ -64,8 +64,9 @@ func main() {
     for i := 0; i < len(csvData); i++ {
         // question, answer := csvData[i]
         question := csvData[i][0]
+        correctString := csvData[i][1]
         var correct int
-        _, err := fmt.Sscan(csvData[i][1], &correct)
+        _, err := fmt.Sscan(correctString, &correct)
         if err != nil {
             log.Fatal(err)
         }
