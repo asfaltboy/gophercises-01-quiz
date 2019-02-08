@@ -38,17 +38,6 @@ func getCSVData(fileName string) []problem {
     return ret
 }
 
-func checkIfTimeExpired(t time.Ticker) {
-    for {
-        // <-time.After(1 * time.Second)
-        select {
-        case <-t.C:
-            fmt.Println("1 second tick")
-        }
-        // go checkIfTimeExpired()
-    }
-}
-
 func printAnswersRight(correctCount int, total int) {
     fmt.Printf("\nYou answered %v questions correctly (out of %v)", correctCount, total)
 }
