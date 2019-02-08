@@ -9,7 +9,12 @@ import (
     "time"
 )
 
-func getCSVData(fileName string) [][]string {
+type problem struct {
+    question string
+    answer   string
+}
+
+func getCSVData(fileName string) []problem {
     file, err := os.Open(fileName)
     if err != nil {
         log.Fatal(err)
@@ -23,7 +28,14 @@ func getCSVData(fileName string) [][]string {
         log.Fatal(err)
     }
     fmt.Printf("CSV Data has %v records\n", len(csvData))
-    return csvData
+    var ret = make([]problem, len(csvData))
+    for i, line := range csvData {
+        ret[i] = problem{
+            question: line[0],
+            answer:   line[1],
+        }
+    }
+    return ret
 }
 
 func checkIfTimeExpired(t time.Ticker) {
@@ -46,7 +58,7 @@ func main() {
     var fileName = flag.String("quizCSV", "quiz.csv", "The path to the CSV file of questions/answers")
     var timeout = flag.Int("timeout", 30, "The timeout in seconds to wait for")
     flag.Parse()
-    csvData := getCSVData(*fileName)
+    var problems = getCSVData(*fileName)
     // fmt.Printf("Hit enter when you're ready to start!")
     // TODO: scan for enter hit and start the counter
     ticker := time.NewTicker(1 * time.Second)
@@ -60,29 +72,21 @@ func main() {
                 seconds++
                 if seconds >= *timeout {
                     fmt.Println("You're out of time! :(")
-                    printAnswersRight(answeredCorrectly, len(csvData))
+                    printAnswersRight(answeredCorrectly, len(problems))
                     os.Exit(0)
                 }
             }
         }
     }()
-    for i := 0; i < len(csvData); i++ {
-        // question, answer := csvData[i]
-        question := csvData[i][0]
-        correctString := csvData[i][1]
-        var correct int
-        _, err := fmt.Sscan(correctString, &correct)
-        if err != nil {
-            log.Fatal(err)
-        }
-        fmt.Printf("\nQuestion % d: %s\n", i, question)
-        var answer int
-        if _, err := fmt.Scan(&answer); err == nil && correct == answer {
+    for i, problem := range problems {
+        fmt.Printf("\nQuestion %d: %s\n", i, problem.question)
+        var answer string
+        if _, err := fmt.Scan(&answer); err == nil && problem.answer == answer {
             answeredCorrectly++
             fmt.Printf("Correct!\n")
         } else {
-            fmt.Printf("Incorrect! Correct answer is %d\n", correct)
+            fmt.Printf("Incorrect! Correct answer is %v\n", problem.answer)
         }
     }
-    printAnswersRight(answeredCorrectly, len(csvData))
+    printAnswersRight(answeredCorrectly, len(problems))
 }
