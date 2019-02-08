@@ -2,17 +2,19 @@ package main
 
 import (
     "encoding/csv"
+    "flag"
     "fmt"
     "log"
     "os"
     "time"
 )
 
-func getCSVData() [][]string {
-    file, err := os.Open("quiz.csv")
+func getCSVData(fileName string) [][]string {
+    file, err := os.Open(fileName)
     if err != nil {
         log.Fatal(err)
     }
+    defer file.Close()
     fmt.Printf("Opened file %q\n", file.Name())
     reader := csv.NewReader(file)
     // fmt.Printf("Created reader %v\n", reader)
@@ -40,11 +42,14 @@ func printAnswersRight(correctCount int, total int) {
 }
 
 func main() {
-    csvData := getCSVData()
+    // parse arguments using flag
+    var fileName = flag.String("quizCSV", "quiz.csv", "The path to the CSV file of questions/answers")
+    var timeout = flag.Int("timeout", 30, "The timeout in seconds to wait for")
+    flag.Parse()
+    csvData := getCSVData(*fileName)
     // fmt.Printf("Hit enter when you're ready to start!")
     // TODO: scan for enter hit and start the counter
     ticker := time.NewTicker(1 * time.Second)
-    const timeout = 30
     answeredCorrectly := 0
     go func() {
         seconds := 0
@@ -53,7 +58,7 @@ func main() {
             select {
             case <-ticker.C:
                 seconds++
-                if seconds >= timeout {
+                if seconds >= *timeout {
                     fmt.Println("You're out of time! :(")
                     printAnswersRight(answeredCorrectly, len(csvData))
                     os.Exit(0)
