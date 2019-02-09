@@ -44,7 +44,7 @@ func printAnswersRight(correctCount int, total int) {
 
 func main() {
     // parse arguments using flag
-    var fileName = flag.String("quizCSV", "quiz.csv", "The path to the CSV file of questions/answers")
+    var fileName = flag.String("csv", "quiz.csv", "The path to the CSV file of questions/answers")
     var timeout = flag.Int("timeout", 30, "The timeout in seconds to wait for")
     flag.Parse()
     var problems = getCSVData(*fileName)
